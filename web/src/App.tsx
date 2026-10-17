@@ -36,7 +36,7 @@ export default function App() {
         <Tex>p</Tex>, <Tex>{`K_{2r}(k[x,y]/(y^a - x^b), (x,y)) \\cong \\prod_{m'} W_h(k)`}</Tex> with{" "}
         <Tex>{`h = h(a,b,r,p,m')`}</Tex>. Every number on this page is computed in your browser by the
         same Python code (<code>cusp_h.py</code>) used for the research, via Pyodide. Source on{" "}
-        <a href="https://github.com/mmgupta713/PhD" target="_blank" rel="noreferrer">
+        <a href="https://github.com/mmgupta713/ktheory-singular-planar-curves" target="_blank" rel="noreferrer">
           GitHub
         </a>
         .
