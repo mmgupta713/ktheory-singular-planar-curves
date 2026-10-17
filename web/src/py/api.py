@@ -85,6 +85,8 @@ def series(a, b, r, p):
 @_catch
 def grid(a, b, p, r1, r2):
     _check_range(a, b, p, r1, r2)
+    # M = the number of columns.
+    # For all m' > M, h=0.
     M = (r2 + 2) * a * b
     return {
         "M": M,
