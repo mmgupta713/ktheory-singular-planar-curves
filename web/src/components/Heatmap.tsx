@@ -1,4 +1,4 @@
-// Heatmap of h(a,b,r,p,m') over r = 0..R (rows) and m' (columns), drawn on a canvas.
+// Heatmap of h(a,b,r,p,m') over r = r1..r2 (rows) and m' (columns), drawn on a canvas.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Grid } from "../lib/compute";
 import { Params } from "../lib/params";
@@ -9,7 +9,7 @@ const M = { top: 8, right: 16, bottom: 36, left: 40 };
 const ROW_H = 28;
 
 export function Heatmap({
-  params: { a, b, p, r, R },
+  params: { a, b, p, r, r1, r2 },
   grid,
   onPickR,
 }: {
@@ -21,7 +21,8 @@ export function Heatmap({
   const canvas = useRef<HTMLCanvasElement>(null);
   const width = useWidth(ref);
   const dark = useDark();
-  const [hover, setHover] = useState<{ r: number; m: number } | null>(null);
+  // ri is the row index, i.e. r = r1 + ri
+  const [hover, setHover] = useState<{ ri: number; m: number } | null>(null);
 
   const rows = grid.rows;
   const nR = rows.length;
@@ -60,28 +61,28 @@ export function Heatmap({
       });
     });
     // ring around the currently selected r
-    if (r <= R) {
+    if (r >= r1 && r <= r2) {
       ctx.strokeStyle = c.ring;
       ctx.lineWidth = 2;
-      ctx.strokeRect(1, r * ROW_H + 1, iw - 2, ROW_H - 3);
+      ctx.strokeRect(1, (r - r1) * ROW_H + 1, iw - 2, ROW_H - 3);
     }
-  }, [rows, width, iw, ih, cw, colors, c, r, R]);
+  }, [rows, width, iw, ih, cw, colors, c, r, r1, r2]);
 
   function onMove(e: React.MouseEvent<HTMLCanvasElement>) {
     const box = e.currentTarget.getBoundingClientRect();
     const mi = Math.floor((e.clientX - box.left) / cw);
     const ri = Math.floor((e.clientY - box.top) / ROW_H);
-    setHover(mi >= 0 && mi < grid.M && ri >= 0 && ri < nR ? { r: ri, m: mi + 1 } : null);
+    setHover(mi >= 0 && mi < grid.M && ri >= 0 && ri < nR ? { ri, m: mi + 1 } : null);
   }
 
   const xStep = tickStep(grid.M, Math.max(2, iw / 60));
   const xTicks = Array.from({ length: Math.floor(grid.M / xStep) }, (_, i) => (i + 1) * xStep);
-  const hv = hover && rows[hover.r][hover.m - 1];
+  const hv = hover && rows[hover.ri][hover.m - 1];
 
   return (
     <div className="figure" ref={ref}>
       <p className="figure-caption">
-        <Tex>{`h(${a},${b},r,${p},m')`}</Tex> for <Tex>{`0 \\le r \\le ${R}`}</Tex> and{" "}
+        <Tex>{`h(${a},${b},r,${p},m')`}</Tex> for <Tex>{`${r1} \\le r \\le ${r2}`}</Tex> and{" "}
         <Tex>{`1 \\le m' \\le ${grid.M}`}</Tex>. Hatched columns are <Tex>{`p \\mid m'`}</Tex>. Click a row to set{" "}
         <Tex>r</Tex>.
       </p>
@@ -102,13 +103,13 @@ export function Heatmap({
             {rows.map((_, ri) => (
               <text
                 key={ri}
-                className={ri === r ? "tick strong" : "tick"}
+                className={r1 + ri === r ? "tick strong" : "tick"}
                 x={M.left - 8}
                 y={M.top + ri * ROW_H + ROW_H / 2}
                 dy="0.32em"
                 textAnchor="end"
               >
-                {ri}
+                {r1 + ri}
               </text>
             ))}
             {xTicks.map((t) => (
@@ -130,12 +131,12 @@ export function Heatmap({
             style={{ position: "absolute", left: M.left, top: M.top, width: iw, height: ih, cursor: "pointer" }}
             onMouseMove={onMove}
             onMouseLeave={() => setHover(null)}
-            onClick={() => hover && onPickR(hover.r)}
+            onClick={() => hover && onPickR(r1 + hover.ri)}
           />
           {hover && (
-            <Tooltip x={M.left + (hover.m - 0.5) * cw} y={M.top + (hover.r + 1) * ROW_H} width={width}>
+            <Tooltip x={M.left + (hover.m - 0.5) * cw} y={M.top + (hover.ri + 1) * ROW_H} width={width}>
               <div className="tt-title">
-                r = {hover.r}, m′ = {hover.m}
+                r = {r1 + hover.ri}, m′ = {hover.m}
               </div>
               {hv == null ? <div className="muted">p | m′ — not an index</div> : <strong>h = {hv}</strong>}
             </Tooltip>

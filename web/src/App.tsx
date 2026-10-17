@@ -1,11 +1,12 @@
 import * as Tabs from "@radix-ui/react-tabs";
 import { ReactNode } from "react";
+import { AcrossR } from "./components/AcrossR";
 import { Heatmap } from "./components/Heatmap";
 import { HPlot } from "./components/HPlot";
 import { ParamPanel } from "./components/ParamPanel";
 import { Summary } from "./components/Summary";
 import { Tex } from "./components/Tex";
-import { Decomposition, Grid, Row, usePy, usePyReady } from "./lib/compute";
+import { Decomposition, Grid, Group, Row, usePy, usePyReady } from "./lib/compute";
 import { useDebounced, useParams, validate } from "./lib/params";
 
 export default function App() {
@@ -13,12 +14,13 @@ export default function App() {
   const q = useDebounced(params);
   const error = validate(params);
   const valid = validate(q) === null;
-  const { a, b, r, p, R } = q;
+  const { a, b, r, p, r1, r2 } = q;
 
   const ready = usePyReady();
   const dec = usePy<Decomposition>("decompose", valid ? [a, b, r, p] : null);
+  const across = usePy<Group[]>("across_r", valid ? [a, b, p, r1, r2] : null);
   const ser = usePy<Row[]>("series", valid ? [a, b, r, p] : null);
-  const grid = usePy<Grid>("grid", valid ? [a, b, p, R] : null);
+  const grid = usePy<Grid>("grid", valid ? [a, b, p, r1, r2] : null);
 
   return (
     <main className="App">
@@ -52,6 +54,9 @@ export default function App() {
             <Tabs.Trigger className="TabsTrigger" value="summary">
               Decomposition
             </Tabs.Trigger>
+            <Tabs.Trigger className="TabsTrigger" value="across">
+              Across&nbsp;<Tex>r</Tex>
+            </Tabs.Trigger>
             <Tabs.Trigger className="TabsTrigger" value="plot">
               <Tex>h</Tex>&nbsp;vs&nbsp;<Tex>m'</Tex>
             </Tabs.Trigger>
@@ -61,6 +66,9 @@ export default function App() {
           </Tabs.List>
           <Tabs.Content className="TabsContent" value="summary">
             <Pane state={dec}>{(d) => <Summary params={q} data={d} />}</Pane>
+          </Tabs.Content>
+          <Tabs.Content className="TabsContent" value="across">
+            <Pane state={across}>{(d) => <AcrossR params={q} groups={d} onPickR={(r) => set({ r })} />}</Pane>
           </Tabs.Content>
           <Tabs.Content className="TabsContent" value="plot">
             <Pane state={ser}>{(d) => <HPlot params={q} rows={d} />}</Pane>

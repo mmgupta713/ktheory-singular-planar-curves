@@ -6,7 +6,8 @@ const FIELDS: { key: keyof Params; tex: string; hint: string }[] = [
   { key: "b", tex: "b", hint: "exponent of x" },
   { key: "r", tex: "r", hint: "group K₂ᵣ" },
   { key: "p", tex: "p", hint: "prime = char k" },
-  { key: "R", tex: "R", hint: "heatmap: max r" },
+  { key: "r1", tex: "r_1", hint: "range of r: from" },
+  { key: "r2", tex: "r_2", hint: "range of r: to" },
 ];
 
 export function ParamPanel({

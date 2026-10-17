@@ -47,16 +47,33 @@ def _row(a, b, r, p, mp):
     }
 
 
-@_catch
-def decompose(a, b, r, p):
-    cusp_h._check_args(a, b, r, p, 1)
-    factors = cusp_h.nonzero_factors(a, b, r, p)
+def _check_range(a, b, p, r1, r2):
+    cusp_h._check_args(a, b, r1, p, 1)
+    if r1 > r2:
+        raise ValueError("need r_1 <= r_2")
+
+
+def _group(a, b, r, factors):
+    """The K_{2r} group as {h: multiplicity} plus its total length and the expected length."""
     return {
-        "factors": [_row(a, b, r, p, mp) for mp in factors],
+        "r": r,
         "multiplicities": [[k, v] for k, v in cusp_h.h_multiplicities(factors).items()],
         "total": sum(factors.values()),
         "expected": (2 * r + 1) * (a - 1) * (b - 1) // 2,
     }
+
+
+@_catch
+def decompose(a, b, r, p):
+    cusp_h._check_args(a, b, r, p, 1)
+    factors = cusp_h.nonzero_factors(a, b, r, p)
+    return {**_group(a, b, r, factors), "factors": [_row(a, b, r, p, mp) for mp in factors]}
+
+
+@_catch
+def across_r(a, b, p, r1, r2):
+    _check_range(a, b, p, r1, r2)
+    return [_group(a, b, r, cusp_h.nonzero_factors(a, b, r, p)) for r in range(r1, r2 + 1)]
 
 
 @_catch
@@ -66,13 +83,13 @@ def series(a, b, r, p):
 
 
 @_catch
-def grid(a, b, p, R):
-    cusp_h._check_args(a, b, R, p, 1)
-    M = (R + 2) * a * b
+def grid(a, b, p, r1, r2):
+    _check_range(a, b, p, r1, r2)
+    M = (r2 + 2) * a * b
     return {
         "M": M,
         "rows": [
             [None if mp % p == 0 else cusp_h.h(a, b, r, p, mp) for mp in range(1, M + 1)]
-            for r in range(R + 1)
+            for r in range(r1, r2 + 1)
         ],
     }

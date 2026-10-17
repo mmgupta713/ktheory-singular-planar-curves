@@ -10,12 +10,14 @@ export type Row = {
   s: number | null;
   case: "generic" | "a' | m'" | "b | m'" | null;
 };
-export type Decomposition = {
-  factors: Row[];
+/** The group K_{2r}: multiplicities of each W_h(k), plus its length. */
+export type Group = {
+  r: number;
   multiplicities: [number, number][]; // [h, count], h descending
   total: number;
   expected: number;
 };
+export type Decomposition = Group & { factors: Row[] };
 export type Grid = { M: number; rows: (number | null)[][] };
 
 type Err = { error: string };

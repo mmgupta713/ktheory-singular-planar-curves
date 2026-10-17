@@ -1,11 +1,16 @@
-import { Decomposition } from "../lib/compute";
+import { Decomposition, Group } from "../lib/compute";
 import { Params } from "../lib/params";
 import { Tex } from "./Tex";
 
-export function Summary({ params: { a, b, r, p }, data }: { params: Params; data: Decomposition }) {
-  const rhs = data.multiplicities.length
-    ? data.multiplicities.map(([h, n]) => `W_{${h}}(k)${n > 1 ? `^{${n}}` : ""}`).join(" \\times ")
+/** LaTeX for the product, e.g. W_{2}(k)^{3} \times W_{1}(k)^{3}, or 0. */
+export function wittProduct(multiplicities: Group["multiplicities"]): string {
+  return multiplicities.length
+    ? multiplicities.map(([h, n]) => `W_{${h}}(k)${n > 1 ? `^{${n}}` : ""}`).join(" \\times ")
     : "0";
+}
+
+export function Summary({ params: { a, b, r, p }, data }: { params: Params; data: Decomposition }) {
+  const rhs = wittProduct(data.multiplicities);
   const ok = data.total === data.expected;
 
   return (
