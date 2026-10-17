@@ -57,7 +57,7 @@ def _group(a, b, r, factors):
     """The K_{2r} group as {h: multiplicity} plus its total length and the expected length."""
     return {
         "r": r,
-        "multiplicities": [[k, v] for k, v in cusp_h.h_multiplicities(factors).items()],
+        "multiplicities": [[k, v] for k, v in sorted(cusp_h.h_multiplicities(factors).items())],  # h increasing
         "total": sum(factors.values()),
         "expected": (2 * r + 1) * (a - 1) * (b - 1) // 2,
     }

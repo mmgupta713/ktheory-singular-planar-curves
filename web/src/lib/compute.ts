@@ -13,7 +13,7 @@ export type Row = {
 /** The group K_{2r}: multiplicities of each W_h(k), plus its length. */
 export type Group = {
   r: number;
-  multiplicities: [number, number][]; // [h, count], h descending
+  multiplicities: [number, number][]; // [h, count], h increasing
   total: number;
   expected: number;
 };
